@@ -3,10 +3,10 @@
 Prerequisites
 Before compiling the project, ensure you have the following installed on your system:
 
-Qt Creator (Recommended version: Qt 6.x or Qt 5.x)
-Qt SDK (with necessary modules)
-C++ Compiler (e.g., MSVC, MinGW, or Clang)
-CMake (if using CMake-based build)
+- Qt Creator (Recommended version: Qt 6.x or Qt 5.x)
+- Qt SDK (with necessary modules)
+- C++ Compiler (e.g., MSVC, MinGW, or Clang)
+- CMake (if using CMake-based build)
 
 
 🛠️ Build Instructions
