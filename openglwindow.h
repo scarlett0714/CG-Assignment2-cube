@@ -82,6 +82,10 @@ private:
     void decreaseNearPlane();
     void increaseFarPlane();
     void decreaseFarPlane();
+
+    // 렌더링
+    enum RenderMode { POINTS, WIREFRAME, SURFACE };
+    RenderMode currentRenderMode = SURFACE;  // 기본값: 표면 렌더링
 };
 
 #endif // OPENGLWINDOW_H

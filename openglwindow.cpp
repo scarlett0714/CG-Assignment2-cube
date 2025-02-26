@@ -109,14 +109,24 @@ void OpenGLWindow::paintGL() {
     setCamera();
 
     glPushMatrix();  // 변환 행렬 저장
-
+    glTranslatef(0.0f, 0.0f, 0.0f);  // 모델 위치 설정
     glColor3f(1.0, 0.0, 0.0); // 빨강색 모델
 
-    glBegin(GL_TRIANGLES);
+    // 렌더링 모드 변경
+    GLenum renderType;
+    if (currentRenderMode == POINTS) {
+        renderType = GL_POINTS;
+    } else if (currentRenderMode == WIREFRAME) {
+        renderType = GL_LINE_LOOP;
+    } else {
+        renderType = GL_TRIANGLES;
+    }
+
+    glBegin(renderType);
     for (const auto& face : objLoader.faces) {
         glVertex3f(objLoader.vertices[face.v1].x, objLoader.vertices[face.v1].y, objLoader.vertices[face.v1].z);
-        glVertex3f(objLoader.vertices[face.v3].x, objLoader.vertices[face.v3].y, objLoader.vertices[face.v3].z);
         glVertex3f(objLoader.vertices[face.v2].x, objLoader.vertices[face.v2].y, objLoader.vertices[face.v2].z);
+        glVertex3f(objLoader.vertices[face.v3].x, objLoader.vertices[face.v3].y, objLoader.vertices[face.v3].z);
     }
     glEnd();
 
@@ -231,6 +241,18 @@ void OpenGLWindow::handleKeyboardInput(int key) {
         break;
     case Qt::Key_Down: // 아래로 회전
         cameraY -= cameraSpeed;
+        updated = true;
+        break;
+    case Qt::Key_5: // 점 모드 (렌더링)
+        currentRenderMode = POINTS;
+        updated = true;
+        break;
+    case Qt::Key_6: // 와이어프레임 모드 (렌더링)
+        currentRenderMode = WIREFRAME;
+        updated = true;
+        break;
+    case Qt::Key_7: // 표면 모드 (렌더링)
+        currentRenderMode = SURFACE;
         updated = true;
         break;
     default:
