@@ -36,6 +36,12 @@ private slots:
     void zoomIn();  // 줌인 함수
     void zoomOut(); // 줌아웃 함수
 
+    void increaseVerticalFov();
+    void decreaseVerticalFov();
+    void increaseHorizontalFov();
+    void decreaseHorizontalFov();
+
+
 private:
     Ui::OpenGLWindow *ui;
     ObjLoader objLoader; // OBJ 파일 로더 객체
@@ -51,7 +57,17 @@ private:
     float cameraX = 3.0f, cameraY = 3.0f, cameraZ = 5.0f;
     float targetX = 0.0f, targetY = 0.0f, targetZ = -3.0f;
     float cameraSpeed = 1.0f;
-    float fov = 60.0f;
+
+    // fov
+    float verticalFov = 60.0f;  // 기본 수직 FOV
+    float aspectRatio = 1.5f;   // 기본 가로/세로 비율 (16:9 기준)
+    float horizontalFov;        // 계산된 수평 FOV
+
+    QPushButton *increaseVerticalFovButton;
+    QPushButton *decreaseVerticalFovButton;
+    QPushButton *increaseHorizontalFovButton;
+    QPushButton *decreaseHorizontalFovButton;
+
 
     // clipping plane
     QPushButton *nearDecreaseButton;

@@ -15,6 +15,11 @@ OpenGLWindow::OpenGLWindow(QWidget *parent)
     zoomInButton = new QPushButton("Zoom In", this);
     zoomOutButton = new QPushButton("Zoom Out", this);
 
+    increaseVerticalFovButton = new QPushButton("Increase Vertical FOV", this);
+    decreaseVerticalFovButton = new QPushButton("Decrease Vertical FOV", this);
+    increaseHorizontalFovButton = new QPushButton("Increase Horizontal FOV", this);
+    decreaseHorizontalFovButton = new QPushButton("Decrease Horizontal FOV", this);
+
     nearIncreaseButton = new QPushButton("Near +", this);
     nearDecreaseButton = new QPushButton("Near -", this);
     farIncreaseButton = new QPushButton("Far +", this);
@@ -23,6 +28,11 @@ OpenGLWindow::OpenGLWindow(QWidget *parent)
     // 버튼 클릭 시 해당 함수 호출
     connect(zoomInButton, &QPushButton::clicked, this, &OpenGLWindow::zoomIn);
     connect(zoomOutButton, &QPushButton::clicked, this, &OpenGLWindow::zoomOut);
+
+    connect(increaseVerticalFovButton, &QPushButton::clicked, this, &OpenGLWindow::increaseVerticalFov);
+    connect(decreaseVerticalFovButton, &QPushButton::clicked, this, &OpenGLWindow::decreaseVerticalFov);
+    connect(increaseHorizontalFovButton, &QPushButton::clicked, this, &OpenGLWindow::increaseHorizontalFov);
+    connect(decreaseHorizontalFovButton, &QPushButton::clicked, this, &OpenGLWindow::decreaseHorizontalFov);
 
     connect(nearIncreaseButton, &QPushButton::clicked, this, &OpenGLWindow::increaseNearPlane);
     connect(nearDecreaseButton, &QPushButton::clicked, this, &OpenGLWindow::decreaseNearPlane);
@@ -33,6 +43,14 @@ OpenGLWindow::OpenGLWindow(QWidget *parent)
     QHBoxLayout *zoomLayout = new QHBoxLayout();
     zoomLayout->addWidget(zoomInButton);
     zoomLayout->addWidget(zoomOutButton);
+
+    QHBoxLayout *verticalFovLayout = new QHBoxLayout();
+    verticalFovLayout->addWidget(decreaseVerticalFovButton);
+    verticalFovLayout->addWidget(increaseVerticalFovButton);
+
+    QHBoxLayout *horizontalFovLayout = new QHBoxLayout();
+    horizontalFovLayout->addWidget(decreaseHorizontalFovButton);
+    horizontalFovLayout->addWidget(increaseHorizontalFovButton);
 
     QHBoxLayout *nearLayout = new QHBoxLayout();
     nearLayout->addWidget(nearDecreaseButton);
@@ -45,6 +63,8 @@ OpenGLWindow::OpenGLWindow(QWidget *parent)
     // 전체 UI 정렬
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(zoomLayout);
+    mainLayout->addLayout(verticalFovLayout);
+    mainLayout->addLayout(horizontalFovLayout);
     mainLayout->addLayout(nearLayout);
     mainLayout->addLayout(farLayout);
     mainLayout->addStretch();
@@ -78,7 +98,11 @@ void OpenGLWindow::paintGL() {
 
     glMatrixMode(GL_PROJECTION);  // 원근 투영 적용
     glLoadIdentity();
-    gluPerspective(fov, (float)width() / height(), nearPlane, farPlane); // 최신 fov 반영
+
+    // 수평 FOV 수동 계산
+    horizontalFov = 2 * atan(tan(verticalFov * M_PI / 360.0) * aspectRatio) * (180.0 / M_PI);
+
+    gluPerspective(verticalFov, aspectRatio, nearPlane, farPlane); // 최신 fov 반영
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -111,7 +135,12 @@ void OpenGLWindow::resizeGL(int w, int h) {
 void OpenGLWindow::setProjection() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(fov, (float)width() / height(), nearPlane, farPlane);
+
+    // 수평 FOV 수동 계산
+    horizontalFov = 2 * atan(tan(verticalFov * M_PI / 360.0) * aspectRatio) * (180.0 / M_PI);
+
+    gluPerspective(verticalFov, aspectRatio, nearPlane, farPlane);
+
     glMatrixMode(GL_MODELVIEW);
     update();
 }
@@ -218,25 +247,69 @@ void OpenGLWindow::handleKeyboardInput(int key) {
 
 // 줌인 버튼 기능
 void OpenGLWindow::zoomIn() {
-    if (fov > 10.0f) {  // 최소 FOV 제한
-        fov -= 5.0f;
-        std::cout << "Zoom In: fov = " << fov << std::endl;
-        setProjection();
+    float dx = targetX - cameraX;
+    float dy = targetY - cameraY;
+    float dz = targetZ - cameraZ;
+    float length = sqrt(dx * dx + dy * dy + dz * dz);
+
+    if (length > 1.0f) { // 너무 가까워지는 것을 방지
+        cameraX += dx * 0.1f;
+        cameraY += dy * 0.1f;
+        cameraZ += dz * 0.1f;
+        setCamera();
         update();
-        repaint();
     }
 }
 
 // 줌아웃 버튼 기능
 void OpenGLWindow::zoomOut() {
-    if (fov < 120.0f) {  // 최대 FOV 제한
-        fov += 5.0f;
-        std::cout << "Zoom Out: fov = " << fov << std::endl;
+    float dx = targetX - cameraX;
+    float dy = targetY - cameraY;
+    float dz = targetZ - cameraZ;
+
+    cameraX -= dx * 0.1f;
+    cameraY -= dy * 0.1f;
+    cameraZ -= dz * 0.1f;
+    setCamera();
+    update();
+}
+
+
+// fov
+void OpenGLWindow::increaseVerticalFov() {
+    if (verticalFov < 120.0f) {  // 최대 제한
+        verticalFov += 5.0f;
+        std::cout << "Vertical FOV: " << verticalFov << std::endl;
         setProjection();
         update();
-        repaint();
     }
 }
+
+void OpenGLWindow::decreaseVerticalFov() {
+    if (verticalFov > 10.0f) {  // 최소 제한
+        verticalFov -= 5.0f;
+        std::cout << "Vertical FOV: " << verticalFov << std::endl;
+        setProjection();
+        update();
+    }
+}
+
+void OpenGLWindow::increaseHorizontalFov() {
+    aspectRatio += 0.1f;  // 종횡비 증가
+    std::cout << "Aspect Ratio (Horizontal FOV 증가): " << aspectRatio << std::endl;
+    setProjection();
+    update();
+}
+
+void OpenGLWindow::decreaseHorizontalFov() {
+    if (aspectRatio > 0.5f) {  // 최소 제한
+        aspectRatio -= 0.1f;
+        std::cout << "Aspect Ratio (Horizontal FOV 감소): " << aspectRatio << std::endl;
+        setProjection();
+        update();
+    }
+}
+
 
 
 // clipping plane
