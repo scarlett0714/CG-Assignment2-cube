@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 // 데이터 구조 정의
 struct Vertex{
