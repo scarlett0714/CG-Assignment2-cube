@@ -33,29 +33,8 @@ git clone https://github.com/scarlett0714/CG-Assignment2-cube.git
 #### **Using Qt Creator**
 - Click **Build** → **Build All** (`Ctrl+B`)
 
-#### **Using Terminal in Qt Creator**
-For **qmake-based projects**:
-```bash
-qmake && make -j$(nproc)
-```
-
-or for CMake-based projects:
-```bash
-mkdir -p build && cd build
-cmake ..
-cmake --build .
-```
-
 ### 5️⃣ Run the Application
 Click Run (Ctrl+R) in Qt Creator
-Or run the compiled binary manually:
-```bash
-./build/your_project_name
-```
 
-🛠️ Troubleshooting
-If you see missing DLL errors, make sure Qt runtime libraries are included. Use:
-windeployqt your_project.exe  # Windows
-macdeployqt your_project.app  # macOS
 If compilation fails, check the Build Output tab in Qt Creator.
 Ensure the correct Qt version and compiler are selected in Build Settings.
