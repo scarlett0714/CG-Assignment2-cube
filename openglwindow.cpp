@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <QHBoxLayout>
+#include <QMouseEvent>
 
 // 생성자
 OpenGLWindow::OpenGLWindow(QWidget *parent)
@@ -110,6 +111,12 @@ void OpenGLWindow::paintGL() {
 
     glPushMatrix();  // 변환 행렬 저장
     glTranslatef(0.0f, 0.0f, 0.0f);  // 모델 위치 설정
+
+    // 모델 회전
+    glRotatef(modelRotationX, 1.0f, 0.0f, 0.0f);
+    glRotatef(modelRotationY, 0.0f, 1.0f, 0.0f);
+    glRotatef(modelRotationZ, 0.0f, 0.0f, 1.0f);
+
     glColor3f(1.0, 0.0, 0.0); // 빨강색 모델
 
     // 렌더링 모드 변경
@@ -186,7 +193,7 @@ void OpenGLWindow::handleKeyboardInput(int key) {
         dz /= length;
     }
 
-    switch (key) {
+    switch (key) { // 카메라 이동 및 회전 : WSADQE, 방향키 / 모델 이동 및 회전 : JLIKUO
     case Qt::Key_W: // 앞으로 이동
         cameraX += dx * cameraSpeed;
         cameraZ += dz * cameraSpeed;
@@ -243,6 +250,30 @@ void OpenGLWindow::handleKeyboardInput(int key) {
         cameraY -= cameraSpeed;
         updated = true;
         break;
+    case Qt::Key_J:
+        modelRotationY -= 5.0f;
+        updated = true;
+        break;
+    case Qt::Key_L:
+        modelRotationY += 5.0f;
+        updated = true;
+        break;
+    case Qt::Key_I:
+        modelRotationX -= 5.0f;
+        updated = true;
+        break;
+    case Qt::Key_K:
+        modelRotationX += 5.0f;
+        updated = true;
+        break;
+    case Qt::Key_U:
+        modelRotationZ -= 5.0f;
+        updated = true;
+        break;
+    case Qt::Key_O:
+        modelRotationZ += 5.0f;
+        updated = true;
+        break;
     case Qt::Key_5: // 점 모드 (렌더링)
         currentRenderMode = POINTS;
         updated = true;
@@ -266,6 +297,72 @@ void OpenGLWindow::handleKeyboardInput(int key) {
         repaint();
     }
 }
+
+// 마우스를 클릭하면 드래그 시작
+void OpenGLWindow::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        isDragging = true;
+        lastMousePosition = event->pos();
+    }else if (event->button() == Qt::RightButton) {
+        isModelRotating = true;
+        lastMousePosition = event->pos();
+    }
+}
+
+// 마우스를 이동하면 카메라 회전
+void OpenGLWindow::mouseMoveEvent(QMouseEvent *event) {
+    float dx = event->pos().x() - lastMousePosition.x();
+    float dy = event->pos().y() - lastMousePosition.y();
+
+    if (isDragging) {
+        // 좌클릭 드래그 → 카메라 회전
+        rotateCamera(dx, dy);
+    }
+    else if (isModelRotating) {
+        // 우클릭 드래그 → 모델 회전
+        modelRotationY += dx * 0.5f;
+        modelRotationX += dy * 0.5f;
+        update();
+    }
+
+    lastMousePosition = event->pos(); // 현재 마우스 위치 저장
+}
+
+// 마우스를 놓으면 드래그 종료
+void OpenGLWindow::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        isDragging = false;
+    }else if (event->button() == Qt::RightButton) {
+        isModelRotating = false;
+    }
+}
+
+void OpenGLWindow::rotateCamera(float dx, float dy) {
+    // 마우스 이동량을 각도로 변환 (감도 적용)
+    yaw += dx * sensitivity;
+    pitch -= dy * sensitivity; // OpenGL에서는 위쪽이 +Y, 아래쪽이 -Y
+
+    // pitch 값 제한 (고개를 위아래로 90도 이상 돌리지 않게)
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+
+    // 회전 행렬을 이용하여 새로운 방향 벡터 계산
+    float radYaw = yaw * M_PI / 180.0f;
+    float radPitch = pitch * M_PI / 180.0f;
+
+    float directionX = cos(radYaw) * cos(radPitch);
+    float directionY = sin(radPitch);
+    float directionZ = sin(radYaw) * cos(radPitch);
+
+    // 새로운 카메라 방향을 설정 (현재 위치에서 바라보는 방향을 갱신)
+    targetX = cameraX + directionX;
+    targetY = cameraY + directionY;
+    targetZ = cameraZ + directionZ;
+
+    setCamera();
+    update();
+}
+
 
 // 줌인 버튼 기능
 void OpenGLWindow::zoomIn() {

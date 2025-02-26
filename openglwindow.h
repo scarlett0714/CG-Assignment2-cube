@@ -32,6 +32,10 @@ protected:
     void keyPressEvent(QKeyEvent *event) override; // 키보드 입력 처리
     bool eventFilter(QObject *obj, QEvent *event) override; // 이벤트 디버깅
 
+    void mousePressEvent(QMouseEvent *event) override;  // 마우스 클릭 이벤트
+    void mouseMoveEvent(QMouseEvent *event) override;   // 마우스 이동 이벤트
+    void mouseReleaseEvent(QMouseEvent *event) override; // 마우스 해제 이벤트
+
 private slots:
     void zoomIn();  // 줌인 함수
     void zoomOut(); // 줌아웃 함수
@@ -57,6 +61,23 @@ private:
     float cameraX = 3.0f, cameraY = 3.0f, cameraZ = 5.0f;
     float targetX = 0.0f, targetY = 0.0f, targetZ = -3.0f;
     float cameraSpeed = 1.0f;
+
+    // 마우스 이벤트
+    bool isDragging = false;  // 드래그 상태 확인
+    bool isModelRotating = false; // 모델 회전 상태 확인
+    QPoint lastMousePosition; // 이전 마우스 위치 저장
+
+    float yaw = -90.0f;   // Y축 회전 (초기값: -90도)
+    float pitch = 0.0f;   // X축 회전 (초기값: 0도)
+    float sensitivity = 0.2f; // 마우스 감도 조절
+
+    void rotateCamera(float dx, float dy); // 카메라 회전 처리
+
+    // 모델 회전 변수
+    float modelRotationX = 0.0f;    // 모델의 X축 회전 각도
+    float modelRotationY = 0.0f;    // 모델의 Y축 회전 각도
+    float modelRotationZ = 0.0f;    // 모델의 Z축 회전 각도 (선택 사항)
+    float modelRotationSensitivity = 0.5f; // 모델 회전 감도
 
     // fov
     float verticalFov = 60.0f;  // 기본 수직 FOV
