@@ -23,6 +23,7 @@ bool ObjLoader::load(const std::string& filename) {
             Face f;
             ss >> f.v1 >> f.v2 >> f.v3;
 
+            // index 맞추기
             f.v1--;
             f.v2--;
             f.v3--;

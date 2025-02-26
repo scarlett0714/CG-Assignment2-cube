@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QKeyEvent>
+#include <QPushButton>
 #include "objloader.h"
 
 QT_BEGIN_NAMESPACE
@@ -31,9 +32,16 @@ protected:
     void keyPressEvent(QKeyEvent *event) override; // 키보드 입력 처리
     bool eventFilter(QObject *obj, QEvent *event) override; // 이벤트 디버깅
 
+private slots:
+    void zoomIn();  // 줌인 함수
+    void zoomOut(); // 줌아웃 함수
+
 private:
     Ui::OpenGLWindow *ui;
     ObjLoader objLoader; // OBJ 파일 로더 객체
+
+    QPushButton *zoomInButton; // 줌 인 버튼
+    QPushButton *zoomOutButton; // 줌 아웃 버튼
 
     void setProjection(); // 원근 투영 설정
     void setCamera();     // 카메라 설정
@@ -43,6 +51,7 @@ private:
     float cameraX = 3.0f, cameraY = 3.0f, cameraZ = 5.0f;
     float targetX = 0.0f, targetY = 0.0f, targetZ = -3.0f;
     float cameraSpeed = 1.0f;
+    float fov = 60.0f;
 };
 
 #endif // OPENGLWINDOW_H

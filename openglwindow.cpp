@@ -2,19 +2,42 @@
 #include <OpenGL/glu.h>
 #include <iostream>
 #include <cmath>
+#include <QHBoxLayout>
 
 // 생성자
 OpenGLWindow::OpenGLWindow(QWidget *parent)
     : QOpenGLWidget(parent)
 {
-     setFocusPolicy(Qt::StrongFocus); // 키보드 입력을 받을 수 있도록 설정
+    setFocusPolicy(Qt::StrongFocus); // 키보드 입력을 받을 수 있도록 설정
     installEventFilter(this); // QT 이벤트 필터 감지
+
+    // UI 버튼 생성
+    zoomInButton = new QPushButton("Zoom In", this);
+    zoomOutButton = new QPushButton("Zoom Out", this);
+
+    // 버튼 클릭 시 해당 함수 호출
+    connect(zoomInButton, &QPushButton::clicked, this, &OpenGLWindow::zoomIn);
+    connect(zoomOutButton, &QPushButton::clicked, this, &OpenGLWindow::zoomOut);
+
+    // 레이아웃을 가로로 변경
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(zoomInButton);
+    buttonLayout->addWidget(zoomOutButton);
+
+    // 전체 레이아웃 (세로 정렬 + 버튼 가로 정렬)
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addLayout(buttonLayout);  // 가로 버튼 레이아웃 추가
+    mainLayout->addStretch();  // OpenGL 창을 아래쪽으로 밀어줌
+
+    setLayout(mainLayout);
 }
 
 
 // 소멸자
 OpenGLWindow::~OpenGLWindow()
 {
+    delete zoomInButton;
+    delete zoomOutButton;
 }
 
 // OpenGL 초기화 함수
@@ -32,6 +55,10 @@ void OpenGLWindow::initializeGL() {
 void OpenGLWindow::paintGL() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 버퍼 초기화
+
+    glMatrixMode(GL_PROJECTION);  // 원근 투영 적용
+    glLoadIdentity();
+    gluPerspective(fov, (float)width() / height(), 0.1, 100.0); // 최신 fov 반영
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -57,14 +84,16 @@ void OpenGLWindow::paintGL() {
 void OpenGLWindow::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
     setProjection();
+    update();
 }
 
 // 원근 투영 설정
 void OpenGLWindow::setProjection() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0, (float)width() / height(), 0.1, 100.0);
+    gluPerspective(fov, (float)width() / height(), 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
+    update();
 }
 
 // 카메라 설정
@@ -163,6 +192,28 @@ void OpenGLWindow::handleKeyboardInput(int key) {
     if (updated) {
         std::cout << "Calling setCamera()... CameraX: " << cameraX << " CameraY: " << cameraY << " CameraZ: " << cameraZ << std::endl;
         setCamera();
+        repaint();
+    }
+}
+
+// 줌인 버튼 기능
+void OpenGLWindow::zoomIn() {
+    if (fov > 10.0f) {  // 최소 FOV 제한
+        fov -= 5.0f;
+        std::cout << "Zoom In: fov = " << fov << std::endl;
+        setProjection();
+        update();
+        repaint();
+    }
+}
+
+// 줌아웃 버튼 기능
+void OpenGLWindow::zoomOut() {
+    if (fov < 120.0f) {  // 최대 FOV 제한
+        fov += 5.0f;
+        std::cout << "Zoom Out: fov = " << fov << std::endl;
+        setProjection();
+        update();
         repaint();
     }
 }
