@@ -1,17 +1,11 @@
 # Assignment 2 - Compilation Guide
-
-Prerequisites
 Before compiling the project, ensure you have the following installed on your system:
-
 - Qt Creator (Recommended version: Qt 6.x or Qt 5.x)
 - Qt SDK (with necessary modules)
 - C++ Compiler (e.g., MSVC, MinGW, or Clang)
 - CMake (if using CMake-based build)
 
-
-🛠️ Build Instructions
-Follow these steps to successfully compile and run the project:
-
+🛠️ Build Instructions:
 ### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/scarlett0714/CG-Assignment2-cube.git
