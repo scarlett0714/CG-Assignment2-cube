@@ -14,7 +14,7 @@ Follow these steps to successfully compile and run the project:
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone [https://github.com/your-repo-name/project.git](https://github.com/scarlett0714/CG-Assignment2-cube.git)
+git clone https://github.com/scarlett0714/CG-Assignment2-cube.git
 ```
 
 ### 2️⃣ Open the Project in Qt Creator
