@@ -6,28 +6,28 @@ Before compiling the project, ensure you have the following installed on your sy
 - CMake (if using CMake-based build)
 
 🛠️ Build Instructions:
-### 1️⃣ Clone the Repository
+Clone the Repository
 ```bash
 git clone https://github.com/scarlett0714/CG-Assignment2-cube.git
 ```
 
-### 2️⃣ Open the Project in Qt Creator
+Open the Project in Qt Creator
 1. **Launch Qt Creator**  
 2. Click **File** → **Open Project...**  
 3. Select the `.pro` file (if using qmake) or `CMakeLists.txt` file (if using CMake)  
 4. Configure the project with the appropriate kit (e.g., **Qt 6.2 + MinGW**)  
 
-### 3️⃣ Configure Build Settings
+Configure Build Settings
 1. Go to **Projects** (`Ctrl+5`) → **Build & Run**
 2. Choose a build kit (e.g., **Desktop Qt 6.2.2 MinGW 64-bit**)
 3. Set the build directory (**`./build`** or **`./out`** recommended)
 4. Make sure **Shadow Build** is enabled (recommended)
 
-### 4️⃣ Build the Project
+Build the Project
 #### **Using Qt Creator**
 - Click **Build** → **Build All** (`Ctrl+B`)
 
-### 5️⃣ Run the Application
+Run the Application
 Click Run (Ctrl+R) in Qt Creator
 
 If compilation fails, check the Build Output tab in Qt Creator.
