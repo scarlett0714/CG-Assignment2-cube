@@ -52,6 +52,20 @@ private:
     float targetX = 0.0f, targetY = 0.0f, targetZ = -3.0f;
     float cameraSpeed = 1.0f;
     float fov = 60.0f;
+
+    // clipping plane
+    QPushButton *nearDecreaseButton;
+    QPushButton *nearIncreaseButton;
+    QPushButton *farDecreaseButton;
+    QPushButton *farIncreaseButton;
+
+    float nearPlane = 0.1f; // 기본값 설정
+    float farPlane = 100.0f;
+
+    void increaseNearPlane();
+    void decreaseNearPlane();
+    void increaseFarPlane();
+    void decreaseFarPlane();
 };
 
 #endif // OPENGLWINDOW_H

@@ -15,19 +15,39 @@ OpenGLWindow::OpenGLWindow(QWidget *parent)
     zoomInButton = new QPushButton("Zoom In", this);
     zoomOutButton = new QPushButton("Zoom Out", this);
 
+    nearIncreaseButton = new QPushButton("Near +", this);
+    nearDecreaseButton = new QPushButton("Near -", this);
+    farIncreaseButton = new QPushButton("Far +", this);
+    farDecreaseButton = new QPushButton("Far -", this);
+
     // 버튼 클릭 시 해당 함수 호출
     connect(zoomInButton, &QPushButton::clicked, this, &OpenGLWindow::zoomIn);
     connect(zoomOutButton, &QPushButton::clicked, this, &OpenGLWindow::zoomOut);
 
-    // 레이아웃을 가로로 변경
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(zoomInButton);
-    buttonLayout->addWidget(zoomOutButton);
+    connect(nearIncreaseButton, &QPushButton::clicked, this, &OpenGLWindow::increaseNearPlane);
+    connect(nearDecreaseButton, &QPushButton::clicked, this, &OpenGLWindow::decreaseNearPlane);
+    connect(farIncreaseButton, &QPushButton::clicked, this, &OpenGLWindow::increaseFarPlane);
+    connect(farDecreaseButton, &QPushButton::clicked, this, &OpenGLWindow::decreaseFarPlane);
 
-    // 전체 레이아웃 (세로 정렬 + 버튼 가로 정렬)
+    // 버튼 배치
+    QHBoxLayout *zoomLayout = new QHBoxLayout();
+    zoomLayout->addWidget(zoomInButton);
+    zoomLayout->addWidget(zoomOutButton);
+
+    QHBoxLayout *nearLayout = new QHBoxLayout();
+    nearLayout->addWidget(nearDecreaseButton);
+    nearLayout->addWidget(nearIncreaseButton);
+
+    QHBoxLayout *farLayout = new QHBoxLayout();
+    farLayout->addWidget(farDecreaseButton);
+    farLayout->addWidget(farIncreaseButton);
+
+    // 전체 UI 정렬
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addLayout(buttonLayout);  // 가로 버튼 레이아웃 추가
-    mainLayout->addStretch();  // OpenGL 창을 아래쪽으로 밀어줌
+    mainLayout->addLayout(zoomLayout);
+    mainLayout->addLayout(nearLayout);
+    mainLayout->addLayout(farLayout);
+    mainLayout->addStretch();
 
     setLayout(mainLayout);
 }
@@ -58,7 +78,7 @@ void OpenGLWindow::paintGL() {
 
     glMatrixMode(GL_PROJECTION);  // 원근 투영 적용
     glLoadIdentity();
-    gluPerspective(fov, (float)width() / height(), 0.1, 100.0); // 최신 fov 반영
+    gluPerspective(fov, (float)width() / height(), nearPlane, farPlane); // 최신 fov 반영
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -91,7 +111,7 @@ void OpenGLWindow::resizeGL(int w, int h) {
 void OpenGLWindow::setProjection() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(fov, (float)width() / height(), 0.1, 100.0);
+    gluPerspective(fov, (float)width() / height(), nearPlane, farPlane);
     glMatrixMode(GL_MODELVIEW);
     update();
 }
@@ -217,6 +237,49 @@ void OpenGLWindow::zoomOut() {
         repaint();
     }
 }
+
+
+// clipping plane
+void OpenGLWindow::increaseNearPlane() {
+    if (nearPlane < farPlane - 0.1f) { // nearPlane이 farPlane을 넘지 않도록 제한
+        nearPlane += 0.1f;
+        std::cout << "Near Plane Increased: " << nearPlane << std::endl;
+        setProjection();
+        update();
+        repaint();
+    }
+}
+
+void OpenGLWindow::decreaseNearPlane() {
+    if (nearPlane > 0.1f) { // nearPlane이 0.1 이하로 내려가지 않도록 제한
+        nearPlane -= 0.1f;
+        std::cout << "Near Plane Decreased: " << nearPlane << std::endl;
+        setProjection();
+        update();
+        repaint();
+    }
+}
+
+void OpenGLWindow::increaseFarPlane() {
+    if (farPlane < 500.0f) { // farPlane 최대값 제한
+        farPlane += 10.0f;
+        std::cout << "Far Plane Increased: " << farPlane << std::endl;
+        setProjection();
+        update();
+        repaint();
+    }
+}
+
+void OpenGLWindow::decreaseFarPlane() {
+    if (farPlane > nearPlane + 0.1f) { // farPlane이 nearPlane보다 작아지지 않도록 제한
+        farPlane -= 10.0f;
+        std::cout << "Far Plane Decreased: " << farPlane << std::endl;
+        setProjection();
+        update();
+        repaint();
+    }
+}
+
 
 
 // OBJ 모델 로드 함수 (UI 버튼과 연결 가능)
