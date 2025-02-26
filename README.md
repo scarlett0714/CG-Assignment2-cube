@@ -13,8 +13,9 @@ CMake (if using CMake-based build)
 Follow these steps to successfully compile and run the project:
 
 1️⃣ Clone the Repository
-git clone https://github.com/your-repo-name/project.git
-cd project
+```bash
+git clone [https://github.com/your-repo-name/project.git](https://github.com/scarlett0714/CG-Assignment2-cube.git)
+```
 
 2️⃣ Open the Project in Qt Creator
 Launch Qt Creator
