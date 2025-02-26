@@ -9,7 +9,8 @@ int main(int argc, char *argv[]) {
     window.show();
 
     // OBJ 파일 로드
-    window.loadModel("/Users/hwang-yoonseon/Desktop/konkuk/wsu/cg/cube.obj");
+    //window.loadModel("/Users/hwang-yoonseon/Desktop/konkuk/wsu/cg/cube.obj");
+    window.loadModel("/Users/hwang-yoonseon/Desktop/konkuk/wsu/cg/cow.obj");
 
     return app.exec();
 }
